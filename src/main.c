@@ -27,11 +27,23 @@ int rVal = 0;
 int score[8];
 char total[]= "00000000";
 char values[] = "0123456789";
+char *numbers[]={"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "ele", "twel"};
+char *alpha[] = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 int a = 0;
 int b = 0;
 int c = 0;
 int d = 0;
 bool completed = 0;
+int completed2 = 0;
+
+bool printA = 0;
+bool printB = 0;
+bool printC = 0;
+bool printD = 0;
+
+
+
+// Initialize the scroll layer
 
 //initializes scroll
 void scroll_init(){
@@ -49,7 +61,15 @@ void scroll_init(){
 
   // Initialize the text layer
   text_layer = text_layer_create(max_text_bounds);
-  text_layer_set_text(text_layer, needB);
+  if(printA == 1)
+    text_layer_set_text(text_layer, needA);
+  else if(printB == 1)
+    text_layer_set_text(text_layer, needB);
+  else if(printC == 1)
+    text_layer_set_text(text_layer, needC);
+  else if(printD == 1)
+    text_layer_set_text(text_layer, needD);
+  
 
   // Change the font to a nice readable one
   // This is system font; you can inspect pebble_fonts.h for all system fonts
@@ -87,7 +107,7 @@ void calculate(){
     int j = score[i];
     total[i] = values[j];
   }
-   // text_layer_set_text(response, total);
+   //text_layer_set_text(response, total);
     //text_layer_destroy(response);
   //ISNT WORKING
   //layer_remove_from_parent((Layer*)&response);
@@ -100,7 +120,7 @@ void calculate(){
   }
   else if (score[0] == 2){
     
-    a+= 2;
+    a += 2;
     b += 3;
     d += 1;
   }
@@ -113,7 +133,7 @@ void calculate(){
   }
   else if (score[1] == 2){
     
-    a+= 3;
+    a += 3;
     b += 1;
     c += 1;
   }
@@ -186,10 +206,26 @@ void calculate(){
   else if (score[7] == 2){
     
     a += 2;
-    a += 2;
+    c += 2;
   }
-  if(a > 10)
-      text_layer_set_text(response, "Congrats");
+  
+  if(a < 10)
+    printA = 1;
+  if(b < 10)
+    printB = 1;
+  if(c < 10)
+    printC = 1;
+  if(d < 10)
+    printD = 1;
+  if(printA ==0 && printB == 0 && printC == 0 && printD == 0)
+    completed2 = 2;
+  
+  if(printC == 1)
+    text_layer_set_text(text_layer, "needC");
+  if(printD == 1)
+    text_layer_set_text(response, "needD");
+  
+      
   
 }
 //select
@@ -198,7 +234,8 @@ void select_click_handler(ClickRecognizerRef recognizer, void *context){
   //if number hasn't been entered, then
   if(completed == 0){
     
-     if (counter < 9){
+      
+     if (counter <= 9){
     
  
         if(counter >= 2){
@@ -215,16 +252,100 @@ void select_click_handler(ClickRecognizerRef recognizer, void *context){
          counter ++;
     
     }
-    else{
+    if(counter == 10){
     
       calculate();
     }
   }
+  else if(completed2 == 1){
+    
+     Layer *window_layer = window_get_root_layer(window);
+     GRect bounds = layer_get_frame(window_layer);
+     GRect max_text_bounds = GRect(0, 0, bounds.size.w, 2000);
+
+  // Initialize the scroll layer
+     scroll_layer = scroll_layer_create(bounds);
+
+  // This binds the scroll layer to the window so that up and down map to scrolling
+  // You may use scroll_layer_set_callbacks to add or override interactivity
+     scroll_layer_set_click_config_onto_window(scroll_layer, window);
+
+  // Initialize the text layer
+     text_layer = text_layer_create(max_text_bounds);
+    
+    if(printA == 1)
+      text_layer_set_text(text_layer, needA);
+    else if (printB == 1)
+      text_layer_set_text(text_layer, needB);
+    else if (printC == 1)
+      text_layer_set_text(text_layer, needC);
+    else if (printD == 1)
+      text_layer_set_text(text_layer, needD);
+    
+    text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+
+  // Trim text layer and scroll content to fit text box
+     GSize max_size = text_layer_get_content_size(text_layer);
+     text_layer_set_size(text_layer, max_size);
+     scroll_layer_set_content_size(scroll_layer, GSize(bounds.size.w, max_size.h + vert_scroll_text_padding));
+
+     // Add the layers for display
+     scroll_layer_add_child(scroll_layer, text_layer_get_layer(text_layer));
+
+     // The inverter layer will highlight some text
+     inverter_layer = inverter_layer_create(GRect(0, 28, bounds.size.w, 28));
+     scroll_layer_add_child(scroll_layer, inverter_layer_get_layer(inverter_layer));
+
+     layer_add_child(window_layer, scroll_layer_get_layer(scroll_layer));
+  
+    
+  }
+  else if(completed2 == 2){
+    
+     Layer *window_layer = window_get_root_layer(window);
+     GRect bounds = layer_get_frame(window_layer);
+     GRect max_text_bounds = GRect(0, 0, bounds.size.w, 2000);
+
+  // Initialize the scroll layer
+     scroll_layer = scroll_layer_create(bounds);
+
+  // This binds the scroll layer to the window so that up and down map to scrolling
+  // You may use scroll_layer_set_callbacks to add or override interactivity
+     scroll_layer_set_click_config_onto_window(scroll_layer, window);
+
+  // Initialize the text layer
+     text_layer = text_layer_create(max_text_bounds);
+    
+    /////////
+    text_layer_set_text(text_layer, scroll_text);
+    /////////////
+    
+    text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+
+  // Trim text layer and scroll content to fit text box
+     GSize max_size = text_layer_get_content_size(text_layer);
+     text_layer_set_size(text_layer, max_size);
+     scroll_layer_set_content_size(scroll_layer, GSize(bounds.size.w, max_size.h + vert_scroll_text_padding));
+
+     // Add the layers for display
+     scroll_layer_add_child(scroll_layer, text_layer_get_layer(text_layer));
+
+     // The inverter layer will highlight some text
+     inverter_layer = inverter_layer_create(GRect(0, 28, bounds.size.w, 28));
+     scroll_layer_add_child(scroll_layer, inverter_layer_get_layer(inverter_layer));
+
+     layer_add_child(window_layer, scroll_layer_get_layer(scroll_layer));
+  
+  }
   else{
     
-    removeAll();
-    scroll_init();
+    //removeAll();
+    //scroll_init();
+    //completed2 = 1;
+
   }
+  
+  
 }
 //up
 void up_click_handler(ClickRecognizerRef recognizer, void *context){
