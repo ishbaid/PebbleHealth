@@ -1,0 +1,18 @@
+{
+    "versionLabel": "1.0",
+    "uuid": "3b6f7a8c-6e28-4e4b-ac8e-08b488339b42",
+    "appKeys": {},
+    "longName": "PebbleHealth",
+    "versionCode": 1,
+    "capabilities": [
+        ""
+    ],
+    "shortName": "PebbleHealth",
+    "companyName": "ishbaid@gmail.com",
+    "watchapp": {
+        "watchface": false
+    },
+    "resources": {
+        "media": []
+    }
+}
