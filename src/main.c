@@ -7,14 +7,20 @@ TextLayer *response;
 ScrollLayer *scroll_layer;
 
 // Lorum ipsum to have something to scroll
-static char scroll_text[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam tellus, fermentu  m quis vulputate quis, vestibulum interdum sapien. Vestibulum lobortis pellentesque pretium. Quisque ultricies purus e  u orci convallis lacinia. Cras a urna mi. Donec convallis ante id dui dapibus nec ullamcorper erat egestas. Aenean a m  auris a sapien commodo lacinia. Sed posuere mi vel risus congue ornare. Curabitur leo nisi, euismod ut pellentesque se  d, suscipit sit amet lorem. Aliquam eget sem vitae sem aliquam ornare. In sem sapien, imperdiet eget pharetra a, lacin  ia ac justo. Suspendisse at ante nec felis facilisis eleifend.";
+//static char scroll_text[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam tellus, fermentu  m quis vulputate quis, vestibulum interdum sapien. Vestibulum lobortis pellentesque pretium. Quisque ultricies purus e  u orci convallis lacinia. Cras a urna mi. Donec convallis ante id dui dapibus nec ullamcorper erat egestas. Aenean a m  auris a sapien commodo lacinia. Sed posuere mi vel risus congue ornare. Curabitur leo nisi, euismod ut pellentesque se  d, suscipit sit amet lorem. Aliquam eget sem vitae sem aliquam ornare. In sem sapien, imperdiet eget pharetra a, lacin  ia ac justo. Suspendisse at ante nec felis facilisis eleifend.";
+static char scroll_text[] = "Congratulations! You have successfully met your daily intake for vitamins! According to the National Institute of Health, the recommended intake for an average adult is 700-900 mcg for Vitamin A, 2.4 mcg for Vitamin B12, 82 mcg for Vitamin C, and 15 mcg for Vitamin D.";
+static char needA[]="Your body may require additional Vitamin A. Increasing your intake of Vitamin A could vastly improve your eyesight as well as prevent cancer, age-related macular degeneration, and measles. Some foods that could help increase your Vitamin A intake are: meats, fish (such as salmon), vegetables (like broccoli and carrots), and dairy products.";
+static char needB[]="Your body may require additional Vitamin B12, which is known to help make genetic material and prevent anemia. Increasing your B12 intake could greatly increase your day-to-day energy. Vitamin B12 deficiency can lead to tiredness, weakness, weight loss, and even depression. Some foods that could help increase your Vitamin B12 intake are: beef liver, fish, poultry, eggs, and dairy products.";
+static char needC[] = "Your body may require additional Vitamin C, which is known to increase the strength of your immune system. It is rare to see Vitamin C deficiency in the United States; however, Vitamin C deficiency can lead to scurvy which can lead to anemia and eventually death. Some foods that could help increase your Vitamin C intake are: oranges (or other citrus food), strawberries, broccoli, and red/green peppers.";
+static char needD[] = "Your body may require additional Vitamin D, which promotes calcium absorption. Having enough amounts of Vitamin D ensure strong bones and prevents hypocalcemic tetany. Vitamin D does not naturally preside in most foods. Some foods that do have Vitamin D includes: fish liver oils, flesh of fatty fish (salmon and tuna), and dairy products.";
+
 
 static const int vert_scroll_text_padding = 4;
 
 // The scroll layer can other things in it such as an invert layer
 static InverterLayer *inverter_layer;
 
-char *foods[] = {"Have you had your daily serving of...","Milk?", "Brocolli?", "Fish or fish oil?", "Meat?", "Eggs?", "Oranges or other citrus fruit?", "other fruits?", "Carrots or peppers?"};
+char *foods[] = {"Have you had your daily serving of...","Milk or other dairy products?", "Broccoli?", "Fish or fish oil?", "Meat?", "Eggs?", "Oranges or other citrus fruit?", "other fruits?", "Carrots or peppers?"};
 char *answer[]={"Yes", "No", "Some"};
 int counter = 0;
 int rVal = 0;
@@ -43,7 +49,7 @@ void scroll_init(){
 
   // Initialize the text layer
   text_layer = text_layer_create(max_text_bounds);
-  text_layer_set_text(text_layer, scroll_text);
+  text_layer_set_text(text_layer, needB);
 
   // Change the font to a nice readable one
   // This is system font; you can inspect pebble_fonts.h for all system fonts
@@ -69,7 +75,7 @@ void scroll_init(){
 void removeAll(){
   
   
- // text_layer_destroy(text_layer);
+
   text_layer_destroy(response);
 }
 //calculates vitamin points
