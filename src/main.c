@@ -19,7 +19,7 @@ static const int vert_scroll_text_padding = 4;
 // The scroll layer can other things in it such as an invert layer
 static InverterLayer *inverter_layer;
 
-char *foods[] = {"Have you had your daily serving of...","Milk or other dairy products?", "Broccoli?", "Fish or fish oil?", "Meat?", "Eggs?", "Oranges or other citrus fruit?", "other fruits?", "Carrots or peppers?"};
+char *foods[] = {"Have you had your daily serving of...","2-3 oz Milk or other dairy products?", "3-4 servings Broccoli?", "Fish or fish oil?", "3-6 oz poultry?", "Eggs?", "Oranges or other citrus fruit?", "4 servings of other fruits?", "3- 4 servings Carrots or peppers?"};
 char *answer[]={"Yes", "No", "Some"};
 int counter = 0;
 int rVal = 0;
