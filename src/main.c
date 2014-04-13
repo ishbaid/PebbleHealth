@@ -2,8 +2,10 @@
 #include <pebble.h>
 
 Window *window;
+
 TextLayer *text_layer;
 TextLayer *response;
+
 
 ScrollLayer *scroll_layer;
 
@@ -43,6 +45,44 @@ bool printD = 0;
 
 //keeps track of whether or not all the notices have been printed
 bool done = 0;
+////////////////////////////////////////////////////
+//keeps track of whether or not long has been pressed
+int longPressed = 0;
+
+Window *tips;
+
+TextLayer *tip_text;
+
+//prototypes
+void set_up(void);
+void long_config_provider(void *context);
+void long_select_click_handler(ClickRecognizerRef recognizer, void *context);
+void long_up_click_handler(ClickRecognizerRef recognizer, void *context);
+void long_down_click_handler(ClickRecognizerRef recognizer, void *context);
+static void long_scroll_click_config_provider(void *context);
+void long_scroll_init();
+
+
+/////
+static char t1[] = "Exercise is vital in order to help strengthen your immune system and prevent various diseases. The average adult should generally exercise for 2.5 hours a week at a moderate level or 1.25 hours at a vigorous level.";
+static char t2[] = "Sleep is a vital part of human growth and development. Infants require between 12 and 18 hours of sleep, toddlers require between 12 and 14, school-age children require between 10 and 11, teenagers require between 8.5 and 9.5, and adults require between 7 and 9.";
+static char t3[] = "Sleep deprivation can increase likelihood of obesity, diabetes, and depression. In order to achieve better sleep, it is recommended to have a consistent sleep cycle. In addition, it is suggested to create calm, relaxing rituals before bed and ensure that your bedroom is dark and cool. Exercise is also expected to help you sleep.";
+static char t4[] = "Recommended calorie intake for a person between 3 and 5 years old is 1200, between 6 and 10 years old is 1400, between 11 and 40 years old is 2400. ";
+
+int tCounter = 0;
+
+ScrollLayer *scroll_tip;
+
+
+
+// The scroll layer can other things in it such as an invert layer
+static InverterLayer *inverter_tip;
+  
+  
+
+////////////////////////////////////////////////////
+
+
 //prototype
 void select_click_handler(ClickRecognizerRef recognizer, void *context);
 
@@ -385,6 +425,135 @@ void down_click_handler(ClickRecognizerRef recognizer, void *context){
     rVal ++;
     text_layer_set_text( response, *(answer + rVal % 3));
 }
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+//long click
+void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
+ 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Long click");
+  longPressed = 1;
+  set_up();
+  Window *window = (Window *)context;
+  
+  
+  // This context defaults to the window, but may be changed with \ref window_set_click_context.
+}
+
+//release
+void select_long_click_release_handler(ClickRecognizerRef recognizer, void *context) {
+
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "release");
+  Window *window = (Window *)context; // This context defaults to the window, but may be changed with \ref window_set_click_context.
+}
+
+//sets up tips window
+void set_up(void) {
+	// Create a window and text layer
+	tips = window_create();
+	tip_text = text_layer_create(GRect(0, 0, 144, 154));
+  
+
+	// Set the text, font, and text alignment
+	text_layer_set_text(tip_text, "Life and Safety Tips ");
+	text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+	text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
+  
+
+  
+
+	// Add the text layer to the window
+	layer_add_child(window_get_root_layer(tips), text_layer_get_layer(tip_text));
+
+  //handles clicks
+  window_set_click_config_provider(tips, long_config_provider);
+  
+	// Push the window
+	window_stack_push(tips, true);
+
+	// App Logging!
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Pushing new window");
+}
+
+void long_config_provider(void *context){
+  
+  window_single_click_subscribe(BUTTON_ID_SELECT, long_select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, long_up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, long_down_click_handler);
+  
+}
+
+void long_select_click_handler(ClickRecognizerRef recognizer, void *context){
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Long select");
+  long_scroll_init();
+  
+}
+void long_up_click_handler(ClickRecognizerRef recognizer, void *context){
+  
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Long up");
+  
+}
+void long_down_click_handler(ClickRecognizerRef recognizer, void *context){
+  
+  
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Long down");
+}
+
+ 
+static void long_scroll_click_config_provider(void *context){
+  
+  window_single_click_subscribe(BUTTON_ID_SELECT, long_select_click_handler);
+
+}
+ScrollLayerCallbacks long_slc = {.click_config_provider = long_scroll_click_config_provider};
+//initializes scroll for vitamins needed
+void long_scroll_init(){
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Scroll init for long");
+  Layer *window_layer = window_get_root_layer(tips);
+  GRect bounds = layer_get_frame(window_layer);
+  GRect max_text_bounds = GRect(0, 0, bounds.size.w, 2000);
+
+  // Initialize the scroll layer
+  scroll_tip = scroll_layer_create(bounds);
+
+  // This binds the scroll layer to the window so that up and down map to scrolling
+  // You may use scroll_layer_set_callbacks to add or override interactivity
+  //THE ORDER MATTERS OF WHICH FUNCTION IS CALLED FIRST
+  scroll_layer_set_callbacks(scroll_tip, long_slc);
+  scroll_layer_set_click_config_onto_window(scroll_tip, tips);
+
+
+  // Initialize the text layer
+  tip_text = text_layer_create(max_text_bounds);
+  text_layer_set_text(tip_text, t1); 
+
+  // Change the font to a nice readable one
+  // This is system font; you can inspect pebble_fonts.h for all system fonts
+  // or you can take a look at feature_custom_font to add your own font
+  text_layer_set_font(tip_text, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+
+  // Trim text layer and scroll content to fit text box
+  GSize max_size = text_layer_get_content_size(tip_text);
+  text_layer_set_size(tip_text, max_size);
+  scroll_layer_set_content_size(scroll_tip, GSize(bounds.size.w, max_size.h + vert_scroll_text_padding));
+
+  // Add the layers for display
+  scroll_layer_add_child(scroll_tip, text_layer_get_layer(tip_text));
+
+  // The inverter layer will highlight some text
+  inverter_tip = inverter_layer_create(GRect(0, 28, bounds.size.w, 28));
+  scroll_layer_add_child(scroll_tip, inverter_layer_get_layer(inverter_tip));
+
+  layer_add_child(window_layer, scroll_layer_get_layer(scroll_tip));
+  
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
 //delegates functions to handle the different button presses
 void config_provider(void *context){
@@ -392,6 +561,8 @@ void config_provider(void *context){
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+  
+  window_long_click_subscribe(BUTTON_ID_SELECT, 700, select_long_click_handler, select_long_click_release_handler);
   
 }
 
@@ -431,6 +602,7 @@ void handle_init(void) {
 void handle_deinit(void) {
 	// Destroy the text layer
 	text_layer_destroy(text_layer);
+  
   text_layer_destroy(response);
   inverter_layer_destroy(inverter_layer);
 
@@ -438,6 +610,11 @@ void handle_deinit(void) {
 
 	// Destroy the window
 	window_destroy(window);
+  
+  
+  text_layer_destroy(tip_text);
+  window_destroy(tips);
+  
 }
 
 int main(void) {
