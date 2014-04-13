@@ -36,13 +36,21 @@ int d = 0;
 bool completed = 0;
 int completed2 = 0;
 
+//keeps track of whether or not each notice needs to get printed
 bool printA = 0;
 bool printB = 0;
 bool printC = 0;
 bool printD = 0;
 
+//determines whether or not all the notices have been printed
 bool done = 0;
+
+//CHAR TO COMBINE
+
+char str[3000];
+
 void select_click_handler(ClickRecognizerRef recognizer, void *context);
+void scroll_select_click_handler(ClickRecognizerRef recognizer, void *context);
 // scroll for when no vitamins are needed
 void scroll_NoneNeeded(){
   
@@ -83,13 +91,8 @@ void scroll_NoneNeeded(){
   layer_add_child(window_layer, scroll_layer_get_layer(scroll_layer));
   
 }
-  
-static void scroll_click_config_provider(void *context){
-  
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
 
-}
-ScrollLayerCallbacks slc = {.click_config_provider = scroll_click_config_provider};
+
 //initializes scroll for vitamins needed
 void scroll_init(){
   
@@ -100,34 +103,42 @@ void scroll_init(){
   // Initialize the scroll layer
   scroll_layer = scroll_layer_create(bounds);
 
+  
   // This binds the scroll layer to the window so that up and down map to scrolling
   // You may use scroll_layer_set_callbacks to add or override interactivity
   scroll_layer_set_click_config_onto_window(scroll_layer, window);
-  scroll_layer_set_callbacks(scroll_layer, slc);
+
 
   // Initialize the text layer
   text_layer = text_layer_create(max_text_bounds);
   //A notice
   if(printA == 1){
     
-    text_layer_set_text(text_layer, needA);
+    strcpy(str, needA);
+    strcat(str, "\n\n");
     printA = 0;
   }
-  else if(printB == 1){
+  if(printB == 1){
     
-    text_layer_set_text(text_layer, needB);
+    strcat(str, needB);
+    strcat(str, "\n\n");
     printB = 0;
   }
-  else if(printC == 1){
+  if(printC == 1){
     
-    text_layer_set_text(text_layer, needC);
+    strcat(str, needC);
+    strcat(str, "\n\n");
     printC = 0;
   }
-  else if(printD == 1){
+  if(printD == 1){
     
-    text_layer_set_text(text_layer, needD);
+    strcat(str, needD);
+    strcat(str, "\n\n");
     printD = 0;
   }
+  text_layer_set_font(text_layer, FONT_KEY_GOTHIC_14);
+  text_layer_set_text(text_layer, str);
+
   
   if(printA == 0 && printB == 0 && printC == 0 && printD == 0){
     
@@ -155,6 +166,7 @@ void scroll_init(){
   
 }
 
+//removes response text_layer
 void removeAll(){
   
   
@@ -297,12 +309,11 @@ void calculate(){
     
   }
   
-
-  
-      
   
 }
-//select
+
+
+//handles events where select is pressed
 void select_click_handler(ClickRecognizerRef recognizer, void *context){
   
   //if number hasn't been entered, then
@@ -334,35 +345,11 @@ void select_click_handler(ClickRecognizerRef recognizer, void *context){
       calculate();
     }
   }
-  else if(completed == 1 && done == 0){
-    
-    if(printB == 1){
-      
-      text_layer_set_text(text_layer, needB);
-      printB = 0;
-    }
-    else if (printC == 1){
-      
-      text_layer_set_text(text_layer, needC);
-      printC = 0;
-    }
-    else if (printD == 1){
-      
-      text_layer_set_text(text_layer, needD);
-      printD = 0;
-      done = 1;
-    }
-    
-  }
-  else{
-    
-      text_layer_set_text(text_layer, "Diagnosis Complete");
 
-  }
-  
-  
 }
-//up
+
+
+//handles up click events
 void up_click_handler(ClickRecognizerRef recognizer, void *context){
     
     if(rVal == 0)
@@ -373,13 +360,14 @@ void up_click_handler(ClickRecognizerRef recognizer, void *context){
       
 }
 
-//down
+//handles down click event
 void down_click_handler(ClickRecognizerRef recognizer, void *context){
 
     rVal ++;
     text_layer_set_text( response, *(answer + rVal % 3));
 }
 
+//points to which functions will handle button press
 void config_provider(void *context){
   
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
@@ -388,6 +376,7 @@ void config_provider(void *context){
   
 }
 
+//initializes window
 void handle_init(void) {
 	// Create a window and text layer
 	window = window_create();
