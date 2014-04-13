@@ -64,12 +64,17 @@ void long_scroll_init();
 
 
 /////
-static char t1[] = "Exercise is vital in order to help strengthen your immune system and prevent various diseases. The average adult should generally exercise for 2.5 hours a week at a moderate level or 1.25 hours at a vigorous level.";
+static char t1[] ="Sleep deprivation can increase likelihood of obesity, diabetes, and depression. In order to achieve better sleep, it is recommended to have a consistent sleep cycle. In addition, it is suggested to create calm, relaxing rituals before bed and ensure that your bedroom is dark and cool. Exercise is also expected to help you sleep.";
 static char t2[] = "Sleep is a vital part of human growth and development. Infants require between 12 and 18 hours of sleep, toddlers require between 12 and 14, school-age children require between 10 and 11, teenagers require between 8.5 and 9.5, and adults require between 7 and 9.";
-static char t3[] = "Sleep deprivation can increase likelihood of obesity, diabetes, and depression. In order to achieve better sleep, it is recommended to have a consistent sleep cycle. In addition, it is suggested to create calm, relaxing rituals before bed and ensure that your bedroom is dark and cool. Exercise is also expected to help you sleep.";
+static char t3[] = "Exercise is vital in order to help strengthen your immune system and prevent various diseases. The average adult should generally exercise for 2.5 hours a week at a moderate level or 1.25 hours at a vigorous level.";
 static char t4[] = "Recommended calorie intake for a person between 3 and 5 years old is 1200, between 6 and 10 years old is 1400, between 11 and 40 years old is 2400. ";
+static char t5[] = "In the case of an earthquake: Drop, cover and hold on. Move as little as possible. If you are in bed, stay there, curl up and hold on. Protect your head with a pillow. Stay away from windows to avoid being injured by shattered glass. Stay indoors until the shaking stops and you are sure it is safe to exit. When it is, use stairs rather than the elevator in case there are aftershocks, power outages or other damage. Be aware that fire alarms and sprinkler systems frequently go off in buildings during an earthquake, even if there is no fire.";
 
+
+char *allTips[] = {t5, t2, t3, t4, t1};
 int tCounter = 0;
+bool first = 1;
+const int TIP_SIZE = 5;
 
 ScrollLayer *scroll_tip;
 
@@ -486,7 +491,26 @@ void long_config_provider(void *context){
 void long_select_click_handler(ClickRecognizerRef recognizer, void *context){
   
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Long select");
-  long_scroll_init();
+  if(first == 1){
+    
+      long_scroll_init();
+      first = 0;
+      tCounter ++;
+  }
+  else if(tCounter < TIP_SIZE){
+    
+      text_layer_set_text(tip_text, allTips[tCounter]);
+    
+    
+      tCounter ++;
+  }
+  else{
+    
+    text_layer_set_text(tip_text, "Out of tips! Stay tuned for more!");
+    
+  }
+  
+
   
 }
 void long_up_click_handler(ClickRecognizerRef recognizer, void *context){
@@ -527,7 +551,7 @@ void long_scroll_init(){
 
   // Initialize the text layer
   tip_text = text_layer_create(max_text_bounds);
-  text_layer_set_text(tip_text, t1); 
+  text_layer_set_text(tip_text, allTips[tCounter]); 
 
   // Change the font to a nice readable one
   // This is system font; you can inspect pebble_fonts.h for all system fonts
@@ -611,6 +635,8 @@ void handle_deinit(void) {
 	// Destroy the window
 	window_destroy(window);
   
+  scroll_layer_destroy(scroll_tip);
+  inverter_layer_destroy(inverter_tip);
   
   text_layer_destroy(tip_text);
   window_destroy(tips);
