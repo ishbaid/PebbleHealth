@@ -1,3 +1,4 @@
+	
 #include <pebble.h>
 
 Window *window;
@@ -6,8 +7,6 @@ TextLayer *response;
 
 ScrollLayer *scroll_layer;
 
-// Lorum ipsum to have something to scroll
-//static char scroll_text[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam tellus, fermentu  m quis vulputate quis, vestibulum interdum sapien. Vestibulum lobortis pellentesque pretium. Quisque ultricies purus e  u orci convallis lacinia. Cras a urna mi. Donec convallis ante id dui dapibus nec ullamcorper erat egestas. Aenean a m  auris a sapien commodo lacinia. Sed posuere mi vel risus congue ornare. Curabitur leo nisi, euismod ut pellentesque se  d, suscipit sit amet lorem. Aliquam eget sem vitae sem aliquam ornare. In sem sapien, imperdiet eget pharetra a, lacin  ia ac justo. Suspendisse at ante nec felis facilisis eleifend.";
 static char scroll_text[] = "Congratulations! You have successfully met your daily intake for vitamins! According to the National Institute of Health, the recommended intake for an average adult is 700-900 mcg for Vitamin A, 2.4 mcg for Vitamin B12, 82 mcg for Vitamin C, and 15 mcg for Vitamin D.";
 static char needA[]="Your body may require additional Vitamin A. Increasing your intake of Vitamin A could vastly improve your eyesight as well as prevent cancer, age-related macular degeneration, and measles. Some foods that could help increase your Vitamin A intake are: meats, fish (such as salmon), vegetables (like broccoli and carrots), and dairy products.";
 static char needB[]="Your body may require additional Vitamin B12, which is known to help make genetic material and prevent anemia. Increasing your B12 intake could greatly increase your day-to-day energy. Vitamin B12 deficiency can lead to tiredness, weakness, weight loss, and even depression. Some foods that could help increase your Vitamin B12 intake are: beef liver, fish, poultry, eggs, and dairy products.";
@@ -36,22 +35,19 @@ int d = 0;
 bool completed = 0;
 int completed2 = 0;
 
-//keeps track of whether or not each notice needs to get printed
+//keeps track of weather or not each vitamin notice needs to be posted
 bool printA = 0;
 bool printB = 0;
 bool printC = 0;
 bool printD = 0;
 
-//determines whether or not all the notices have been printed
+//keeps track of whether or not all the notices have been printed
 bool done = 0;
-
-//CHAR TO COMBINE
-
-char str[3000];
-
+//prototype
 void select_click_handler(ClickRecognizerRef recognizer, void *context);
-void scroll_select_click_handler(ClickRecognizerRef recognizer, void *context);
-// scroll for when no vitamins are needed
+
+
+// scroll_layer for when no vitamins are needed
 void scroll_NoneNeeded(){
   
   Layer *window_layer = window_get_root_layer(window);
@@ -91,8 +87,13 @@ void scroll_NoneNeeded(){
   layer_add_child(window_layer, scroll_layer_get_layer(scroll_layer));
   
 }
+  
+static void scroll_click_config_provider(void *context){
+  
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
 
-
+}
+ScrollLayerCallbacks slc = {.click_config_provider = scroll_click_config_provider};
 //initializes scroll for vitamins needed
 void scroll_init(){
   
@@ -103,9 +104,10 @@ void scroll_init(){
   // Initialize the scroll layer
   scroll_layer = scroll_layer_create(bounds);
 
-  
   // This binds the scroll layer to the window so that up and down map to scrolling
   // You may use scroll_layer_set_callbacks to add or override interactivity
+  //THE ORDER MATTERS OF WHICH FUNCTION IS CALLED FIRST
+  scroll_layer_set_callbacks(scroll_layer, slc);
   scroll_layer_set_click_config_onto_window(scroll_layer, window);
 
 
@@ -114,31 +116,24 @@ void scroll_init(){
   //A notice
   if(printA == 1){
     
-    strcpy(str, needA);
-    strcat(str, "\n\n");
+    text_layer_set_text(text_layer, needA);
     printA = 0;
   }
-  if(printB == 1){
+  else if(printB == 1){
     
-    strcat(str, needB);
-    strcat(str, "\n\n");
+    text_layer_set_text(text_layer, needB);
     printB = 0;
   }
-  if(printC == 1){
+  else if(printC == 1){
     
-    strcat(str, needC);
-    strcat(str, "\n\n");
+    text_layer_set_text(text_layer, needC);
     printC = 0;
   }
-  if(printD == 1){
+  else if(printD == 1){
     
-    strcat(str, needD);
-    strcat(str, "\n\n");
+    text_layer_set_text(text_layer, needD);
     printD = 0;
   }
-  text_layer_set_font(text_layer, FONT_KEY_GOTHIC_14);
-  text_layer_set_text(text_layer, str);
-
   
   if(printA == 0 && printB == 0 && printC == 0 && printD == 0){
     
@@ -166,7 +161,6 @@ void scroll_init(){
   
 }
 
-//removes response text_layer
 void removeAll(){
   
   
@@ -309,11 +303,12 @@ void calculate(){
     
   }
   
+
+  
+      
   
 }
-
-
-//handles events where select is pressed
+//select
 void select_click_handler(ClickRecognizerRef recognizer, void *context){
   
   //if number hasn't been entered, then
@@ -345,11 +340,35 @@ void select_click_handler(ClickRecognizerRef recognizer, void *context){
       calculate();
     }
   }
+  else if(completed == 1 && done == 0){
+    
+    if(printB == 1){
+      
+      text_layer_set_text(text_layer, needB);
+      printB = 0;
+    }
+    else if (printC == 1){
+      
+      text_layer_set_text(text_layer, needC);
+      printC = 0;
+    }
+    else if (printD == 1){
+      
+      text_layer_set_text(text_layer, needD);
+      printD = 0;
+      done = 1;
+    }
+    
+  }
+  else{
+    
+      text_layer_set_text(text_layer, "Diagnosis Complete");
 
+  }
+  
+  
 }
-
-
-//handles up click events
+//handles up button events
 void up_click_handler(ClickRecognizerRef recognizer, void *context){
     
     if(rVal == 0)
@@ -360,14 +379,14 @@ void up_click_handler(ClickRecognizerRef recognizer, void *context){
       
 }
 
-//handles down click event
+//handles down button events
 void down_click_handler(ClickRecognizerRef recognizer, void *context){
 
     rVal ++;
     text_layer_set_text( response, *(answer + rVal % 3));
 }
 
-//points to which functions will handle button press
+//delegates functions to handle the different button presses
 void config_provider(void *context){
   
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
@@ -382,7 +401,7 @@ void handle_init(void) {
 	window = window_create();
 	text_layer = text_layer_create(GRect(0, 0, 144, 154));
   response = text_layer_create(GRect(50, 100, 100, 40));
-	
+
 	// Set the text, font, and text alignment
 	text_layer_set_text(text_layer, "Welcome to Pebble Health!\n Press Select to begin ");
 	text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
@@ -394,7 +413,7 @@ void handle_init(void) {
 	text_layer_set_text_alignment(response, GTextAlignmentCenter);
   layer_set_hidden(text_layer_get_layer(response), true);
   
-	
+
 	// Add the text layer to the window
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(text_layer));
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(response));
@@ -403,11 +422,12 @@ void handle_init(void) {
   
 	// Push the window
 	window_stack_push(window, true);
-	
+
 	// App Logging!
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "Hello World");
 }
 
+//deallocates space
 void handle_deinit(void) {
 	// Destroy the text layer
 	text_layer_destroy(text_layer);
@@ -415,7 +435,7 @@ void handle_deinit(void) {
   inverter_layer_destroy(inverter_layer);
 
   scroll_layer_destroy(scroll_layer);
-	
+
 	// Destroy the window
 	window_destroy(window);
 }
